@@ -1,0 +1,522 @@
+[
+  {
+    "id": "0c9c88a2-0888-5794-b5c7-d5aea9843e53",
+    "name": "Apple iPhone 15 128GB",
+    "description": "6.1\" OLED, камера 48 Мп, Face ID, флагманский смартфон Apple",
+    "category": "Смартфоны",
+    "price": 79990,
+    "sku": "PH-IP15"
+  },
+  {
+    "id": "7cf3288a-965c-554f-b955-08ad727114ce",
+    "name": "Samsung Galaxy S24",
+    "description": "Android 14, AMOLED 120 Гц, тройная камера, Galaxy AI",
+    "category": "Смартфоны",
+    "price": 74990,
+    "sku": "PH-S24"
+  },
+  {
+    "id": "e566a216-d106-5ef2-9373-b6e320e05e8d",
+    "name": "Google Pixel 8",
+    "description": "Чистый Android, отличная камера, Tensor G3",
+    "category": "Смартфоны",
+    "price": 59990,
+    "sku": "PH-PX8"
+  },
+  {
+    "id": "2b7d2aa7-70fc-5242-8644-c8698798e98a",
+    "name": "Xiaomi 14",
+    "description": "Leica камера, Snapdragon 8 Gen 3, быстрая зарядка 90W",
+    "category": "Смартфоны",
+    "price": 54990,
+    "sku": "PH-XM14"
+  },
+  {
+    "id": "6498bc8c-290e-53c7-b367-0eb007da7a90",
+    "name": "Sony WH-1000XM5",
+    "description": "Беспроводные наушники с активным шумоподавлением, 30 часов автономности",
+    "category": "Наушники",
+    "price": 29990,
+    "sku": "HP-SONY-WH"
+  },
+  {
+    "id": "8649b4bc-d50e-5f71-bfa8-e05a9ab16d80",
+    "name": "Apple AirPods Pro 2",
+    "description": "TWS наушники, прозрачный режим, пространственное аудио",
+    "category": "Наушники",
+    "price": 24990,
+    "sku": "HP-AIRPODS"
+  },
+  {
+    "id": "a3ce2336-54d1-5e3f-9a28-dc1c6f90bda2",
+    "name": "JBL Tune 710BT",
+    "description": "Накладные Bluetooth наушники, до 50 часов работы",
+    "category": "Наушники",
+    "price": 4990,
+    "sku": "HP-JBL-710"
+  },
+  {
+    "id": "abf1501c-cda0-5f07-b66c-0219c0cbf113",
+    "name": "Sennheiser Momentum True Wireless 4",
+    "description": "Премиальные TWS, aptX Adaptive, шумоподавление",
+    "category": "Наушники",
+    "price": 27990,
+    "sku": "HP-SENN-MTW"
+  },
+  {
+    "id": "e301a8a4-fa42-5592-9174-e5c2ad8619f0",
+    "name": "ASUS VivoBook 15 OLED",
+    "description": "15.6\" OLED, Intel Core i5, 16 ГБ RAM, SSD 512 ГБ",
+    "category": "Ноутбуки",
+    "price": 64990,
+    "sku": "NB-ASUS-VB"
+  },
+  {
+    "id": "ea8377e5-397d-5b55-a1c3-d6837b703498",
+    "name": "Apple MacBook Air M2",
+    "description": "13.6\" Retina, чип M2, 8 ГБ, SSD 256 ГБ, до 18 часов работы",
+    "category": "Ноутбуки",
+    "price": 109990,
+    "sku": "NB-MBA-M2"
+  },
+  {
+    "id": "046fb691-8e9d-5a55-9af6-e87465721a86",
+    "name": "Lenovo IdeaPad Slim 5",
+    "description": "14\" IPS, Ryzen 5, 16 ГБ RAM, лёгкий офисный ноутбук",
+    "category": "Ноутбуки",
+    "price": 54990,
+    "sku": "NB-LEN-IDEA"
+  },
+  {
+    "id": "8094e7b6-391d-5cd8-88c1-034ba98fb8eb",
+    "name": "Apple iPad Air M1",
+    "description": "10.9\" Liquid Retina, Apple Pencil, для рисования и работы",
+    "category": "Планшеты",
+    "price": 59990,
+    "sku": "TB-IPAD-AIR"
+  },
+  {
+    "id": "418e9ca5-80fc-5a8e-83a5-68643be1b9cf",
+    "name": "Apple Watch Series 9",
+    "description": "GPS 45 мм, пульс, ECG, Always-On Retina",
+    "category": "Умные часы",
+    "price": 39990,
+    "sku": "WT-APPLE-S9"
+  },
+  {
+    "id": "d18d2d10-1608-51c7-bf5e-9e01845c3e94",
+    "name": "Samsung Galaxy Watch 6",
+    "description": "Wear OS, мониторинг сна, пульс, NFC",
+    "category": "Умные часы",
+    "price": 24990,
+    "sku": "WT-GAL-W6"
+  },
+  {
+    "id": "1507f81f-33f2-5b31-a488-85fd29444fb0",
+    "name": "JBL Flip 6",
+    "description": "Портативная Bluetooth колонка, водозащита IP67, 12 часов",
+    "category": "Колонки",
+    "price": 8990,
+    "sku": "SP-JBL-FLIP"
+  },
+  {
+    "id": "8c49227b-f00a-543e-ba3f-379e066d2b43",
+    "name": "DJI Mini 4 Pro",
+    "description": "Компактный дрон с 4K камерой, обход препятствий, 34 мин полёта",
+    "category": "Дроны",
+    "price": 89990,
+    "sku": "DR-DJI-MINI"
+  },
+  {
+    "id": "98c2db8d-5071-55ea-b8fb-894946416064",
+    "name": "De'Longhi Magnifica S",
+    "description": "Автоматическая кофемашина, эспрессо и капучино, 15 бар, зерновой кофе",
+    "category": "Кофемашины",
+    "price": 34990,
+    "sku": "CM-DELONG"
+  },
+  {
+    "id": "836b4c39-00f5-5170-81f4-a2b328e9acfd",
+    "name": "Nespresso Vertuo Next",
+    "description": "Капсульная кофемашина, центрифужное заваривание, компактная",
+    "category": "Кофемашины",
+    "price": 12990,
+    "sku": "CM-NESP-V"
+  },
+  {
+    "id": "8246b603-881b-5189-a4ec-457ae2576866",
+    "name": "Breville Barista Express",
+    "description": "Ручная эспрессо-машина, встроенная кофемолка, паровая трубка",
+    "category": "Кофемашины",
+    "price": 54990,
+    "sku": "CM-BREV"
+  },
+  {
+    "id": "115f4ec0-6aa4-52f0-95be-3b1cb4753a94",
+    "name": "Tefal Safe Tea Kettle",
+    "description": "Электрический чайник 1.7 л, автоматическое отключение, 2400 Вт",
+    "category": "Чайники",
+    "price": 3490,
+    "sku": "KT-TEFAL"
+  },
+  {
+    "id": "c4252327-0ed5-56f2-815e-b8dcfdc30cb7",
+    "name": "Bosch Styline TWK8611",
+    "description": "Чайник с регулировкой температуры, 1.5 л, стекло и нержавейка",
+    "category": "Чайники",
+    "price": 7990,
+    "sku": "KT-BOSCH"
+  },
+  {
+    "id": "4dbb1f40-27d2-5063-854f-9c19eea32e4e",
+    "name": "Dyson V15 Detect",
+    "description": "Беспроводной вертикальный пылесос, лазерная подсветка пыли, HEPA",
+    "category": "Пылесосы",
+    "price": 64990,
+    "sku": "VC-DYSON-V15"
+  },
+  {
+    "id": "549270ac-ae14-52a8-81df-d334edf67bb7",
+    "name": "Roborock S8 Pro Ultra",
+    "description": "Робот-пылесос с станцией самоочистки, мытьё полов, LiDAR навигация",
+    "category": "Пылесосы",
+    "price": 89990,
+    "sku": "VC-ROBOROCK"
+  },
+  {
+    "id": "96df5e8b-bab5-5d82-b448-b02a977c3e77",
+    "name": "Xiaomi G10 Plus",
+    "description": "Беспроводной пылесос для уборки квартиры, 60 мин работы, HEPA фильтр",
+    "category": "Пылесосы",
+    "price": 19990,
+    "sku": "VC-XIAOMI-G10"
+  },
+  {
+    "id": "70208085-9b03-5a7c-9ad1-10c21ac81d2e",
+    "name": "Dyson Supersonic",
+    "description": "Профессиональный фен, ионизация, 4 насадки, быстрая сушка без перегрева",
+    "category": "Фены",
+    "price": 39990,
+    "sku": "DR-DYSON-SU"
+  },
+  {
+    "id": "646ab5ce-35e0-5875-859d-96434fe06bf9",
+    "name": "Philips BHD500",
+    "description": "Компактный фен 2100 Вт, 3 режима температуры, складная ручка",
+    "category": "Фены",
+    "price": 4990,
+    "sku": "DR-PHILIPS"
+  },
+  {
+    "id": "e903e3ad-e667-5370-a260-d7cbaff32ef5",
+    "name": "Panasonic NN-CD87",
+    "description": "Микроволновая печь 27 л, инверторная технология, гриль",
+    "category": "Микроволновки",
+    "price": 14990,
+    "sku": "MW-PANASONIC"
+  },
+  {
+    "id": "8fc2c98c-3879-5d20-a4ac-0a003d1200c2",
+    "name": "Vitamix E310",
+    "description": "Мощный блендер для смузи, супов и соусов, 1.4 л контейнер",
+    "category": "Блендеры",
+    "price": 44990,
+    "sku": "BL-VITAMIX"
+  },
+  {
+    "id": "3ae6b7be-bcaf-536a-ae79-61eec013ef59",
+    "name": "LG InstaView Door-in-Door",
+    "description": "Двухкамерный холодильник, умный экран, No Frost, 617 л",
+    "category": "Холодильники",
+    "price": 149990,
+    "sku": "RF-LG-INST"
+  },
+  {
+    "id": "bb926bd8-8911-557f-9996-de81394cfb00",
+    "name": "Bosch Serie 6 WAN28270",
+    "description": "Стиральная машина 9 кг, 1400 об/мин, EcoSilence Drive",
+    "category": "Стиральные машины",
+    "price": 54990,
+    "sku": "WM-BOSCH-6"
+  },
+  {
+    "id": "a55f2a1e-8299-55ec-add9-b259a2ae68ae",
+    "name": "ASICS Gel-Nimbus 26",
+    "description": "Беговые кроссовки с максимальной амортизацией, для длинных дистанций",
+    "category": "Кроссовки",
+    "price": 14990,
+    "sku": "SH-NIMBUS"
+  },
+  {
+    "id": "2d1d42e0-d271-525d-838b-d4a179ed7522",
+    "name": "Nike Air Zoom Pegasus 41",
+    "description": "Универсальные беговые кроссовки, React foam, для асфальта",
+    "category": "Кроссовки",
+    "price": 12990,
+    "sku": "SH-NIKE-PEG"
+  },
+  {
+    "id": "e24e3c75-c399-530f-a55f-9c5c0b43b9b4",
+    "name": "Adidas Ultraboost Light",
+    "description": "Беговые кроссовки Boost, комфорт на каждый день и пробежки",
+    "category": "Кроссовки",
+    "price": 15990,
+    "sku": "SH-ADID-UB"
+  },
+  {
+    "id": "6541ba50-5573-5ebe-8ab2-a47c7bb85062",
+    "name": "New Balance 880v14",
+    "description": "Нейтральные беговые кроссовки, Fresh Foam X, стабильность",
+    "category": "Кроссовки",
+    "price": 13990,
+    "sku": "SH-NB-880"
+  },
+  {
+    "id": "0dc8cdc9-d98e-571f-beda-43eb80ae7b49",
+    "name": "Salomon Speedcross 6",
+    "description": "Трейловые кроссовки, агрессивный протектор, для бездорожья",
+    "category": "Кроссовки",
+    "price": 11990,
+    "sku": "SH-SAL-SPD"
+  },
+  {
+    "id": "4bf74ad3-2461-51a7-9205-fa2e7772f6bb",
+    "name": "Reebok Floatride Energy 5",
+    "description": "Недорогие беговые кроссовки, лёгкие, для начинающих бегунов",
+    "category": "Кроссовки",
+    "price": 8990,
+    "sku": "SH-REEB-FLT"
+  },
+  {
+    "id": "05f0a100-5d7a-5ad7-81f7-ae117e797df0",
+    "name": "Trek Marlin 7",
+    "description": "Горный велосипед 29\", алюминиевая рама, 1x12 Shimano Deore",
+    "category": "Велосипеды",
+    "price": 89990,
+    "sku": "BI-TREK-MAR"
+  },
+  {
+    "id": "1a6f872c-d813-57e2-88a0-77f712e348dc",
+    "name": "Manduka PRO Yoga Mat",
+    "description": "Профессиональный коврик для йоги 6 мм, нескользящая поверхность",
+    "category": "Йога",
+    "price": 9990,
+    "sku": "YG-MANDUKA"
+  },
+  {
+    "id": "75984140-b5a6-5595-a008-aed0c7cf6e05",
+    "name": "Bowflex SelectTech 552",
+    "description": "Регулируемые гантели 2-24 кг, замена 15 пар гантелей",
+    "category": "Фитнес",
+    "price": 49990,
+    "sku": "FT-BOWFLEX"
+  },
+  {
+    "id": "81155834-220a-5c69-972e-a4438b2287d3",
+    "name": "Garmin Forerunner 255",
+    "description": "GPS часы для бега, пульсометр, VO2 max, тренировочные планы",
+    "category": "Спортивные часы",
+    "price": 29990,
+    "sku": "SW-GARMIN"
+  },
+  {
+    "id": "1d87e0fa-7eae-5b8c-a533-3707aabb63bc",
+    "name": "The North Face Thermoball",
+    "description": "Утеплённая куртка синтетический наполнитель, ветрозащита, лёгкая",
+    "category": "Куртки",
+    "price": 18990,
+    "sku": "JK-NORTH-F"
+  },
+  {
+    "id": "7b0e2e3f-4bcf-54f7-a671-028120c3dc1e",
+    "name": "Osprey Daylite Plus 20L",
+    "description": "Городской рюкзак 20 л, отделение для ноутбука 13\", ventilated back",
+    "category": "Рюкзаки",
+    "price": 7990,
+    "sku": "BP-OSPREY"
+  },
+  {
+    "id": "a405de1e-09a4-5ed0-b875-c24e92fedd3f",
+    "name": "Herschel Little America",
+    "description": "Рюкзак 25 л в стиле mountaineering, отделение для ноутбука 15\"",
+    "category": "Рюкзаки",
+    "price": 9990,
+    "sku": "BP-HERSCHEL"
+  },
+  {
+    "id": "7f9ca885-8b97-513f-93bb-9671a0211545",
+    "name": "Ray-Ban Aviator Classic",
+    "description": "Классические солнцезащитные очки, металлическая оправа, UV400",
+    "category": "Очки",
+    "price": 12990,
+    "sku": "GL-RAY-BAN"
+  },
+  {
+    "id": "695640fc-2ecb-5751-b5ac-5fe749d6234d",
+    "name": "Philips Hue White and Color",
+    "description": "Умная RGB лампа E27, управление через приложение, голосовой ассистент",
+    "category": "Освещение",
+    "price": 4990,
+    "sku": "LT-PHILIPS-HUE"
+  },
+  {
+    "id": "86ec451e-502a-51a3-a069-dc5e7c0bb478",
+    "name": "Xiaomi Smart LED Bulb",
+    "description": "Умная лампа, регулировка яркости и цветовой температуры, Wi-Fi",
+    "category": "Освещение",
+    "price": 990,
+    "sku": "LT-XIAOMI"
+  },
+  {
+    "id": "77a4fcaa-3b3a-5b29-80bb-8b2e20332a18",
+    "name": "Dyson Purifier Cool TP07",
+    "description": "Очиститель и вентилятор воздуха HEPA H13, мониторинг качества воздуха",
+    "category": "Климат",
+    "price": 54990,
+    "sku": "AR-DYSON-PUR"
+  },
+  {
+    "id": "048b5004-2fc0-5c0e-9f4a-1bcf5b261246",
+    "name": "Google Nest Thermostat",
+    "description": "Умный термостат, экономия энергии, управление с телефона",
+    "category": "Умный дом",
+    "price": 14990,
+    "sku": "HM-NEST"
+  },
+  {
+    "id": "e3337b33-318a-565c-a32d-4d91077e102a",
+    "name": "Weber Spirit II E-310",
+    "description": "Газовый гриль 3 конфорки, GS4 система зажигания, для дачи",
+    "category": "Грили",
+    "price": 69990,
+    "sku": "GR-WEBER"
+  },
+  {
+    "id": "02b8af98-8ffb-55c7-aad4-57f6c9d03388",
+    "name": "Lavazza Qualità Oro",
+    "description": "Молотый кофе 250 г, средняя обжарка, арабика, для турки и кофемашины",
+    "category": "Кофе",
+    "price": 890,
+    "sku": "CF-LAVAZZA"
+  },
+  {
+    "id": "a95b798e-c34b-532a-a4b7-4c38c83b1f54",
+    "name": "illy Classico зерно 1 кг",
+    "description": "Кофе в зёрнах, 100% арабика, для эспрессо-машины",
+    "category": "Кофе",
+    "price": 3490,
+    "sku": "CF-ILLY"
+  },
+  {
+    "id": "76d997f9-23c2-5387-87a5-4f61e492c59a",
+    "name": "Starbucks Pike Place",
+    "description": "Молотый кофе 200 г, средняя обжарка, для фильтра и френч-пресса",
+    "category": "Кофе",
+    "price": 1290,
+    "sku": "CF-STARB"
+  },
+  {
+    "id": "665fab90-61b0-5502-b4b7-d1e95a3de7aa",
+    "name": "Twinings English Breakfast",
+    "description": "Чёрный чай 100 пакетиков, классический английский завтрак",
+    "category": "Чай",
+    "price": 590,
+    "sku": "TE-TWININGS"
+  },
+  {
+    "id": "99bcc9b7-1b50-5fd7-8c08-a31325f02f99",
+    "name": "Zwilling Pro Chef Knife 20 см",
+    "description": "Профессиональный поварской нож, немецкая сталь, балансировка",
+    "category": "Кухонные принадлежности",
+    "price": 8990,
+    "sku": "KN-ZWILLING"
+  },
+  {
+    "id": "fbd5d3f6-e04a-58a3-8f5e-417908b3b312",
+    "name": "Lodge Cast Iron Skillet 26 см",
+    "description": "Чугунная сковорода, для жарки и запекания, предварительно seasoned",
+    "category": "Посуда",
+    "price": 4990,
+    "sku": "PN-CASTIRON"
+  },
+  {
+    "id": "53227487-fd67-5045-b6c7-499dba9cd1f2",
+    "name": "LEGO Technic Porsche 911",
+    "description": "Конструктор 1458 деталей, модель спортивного автомобиля, 18+",
+    "category": "Конструкторы",
+    "price": 14990,
+    "sku": "TO-LEGO-TECH"
+  },
+  {
+    "id": "4024f5c3-5b2a-5a9b-ac7f-cbf122e6e259",
+    "name": "Гарри Поттер и философский камень",
+    "description": "Классический роман Дж. К. Роулинг, мягкая обложка, на русском",
+    "category": "Книги",
+    "price": 690,
+    "sku": "BK-HP-1"
+  },
+  {
+    "id": "1f369dc5-f3ac-5a27-aad5-d35675fdbadd",
+    "name": "Sony DualSense Edge",
+    "description": "Профессиональный геймпад для PlayStation 5, сменные стики и триггеры",
+    "category": "Игровые аксессуары",
+    "price": 17990,
+    "sku": "GM-PS5-DUAL"
+  },
+  {
+    "id": "d4ec25d6-0d2b-597b-b936-1b91dd330e6b",
+    "name": "Logitech G Pro X Superlight 2",
+    "description": "Беспроводная игровая мышь 60 г, HERO 2 сенсор, для киберспорта",
+    "category": "Игровые аксессуары",
+    "price": 14990,
+    "sku": "GM-LOGITECH"
+  },
+  {
+    "id": "a14d6a30-f94a-5c26-a2e2-c32e604601fe",
+    "name": "Canon EOS R50",
+    "description": "Беззеркальная камера APS-C, 4K видео, vlog-friendly экран",
+    "category": "Фото",
+    "price": 64990,
+    "sku": "CAM-CANON-R50"
+  },
+  {
+    "id": "176ca438-b45c-57f7-838c-1570f4cbfce1",
+    "name": "Apple Pencil Pro",
+    "description": "Стилус для iPad Pro и Air, жесты squeeze, поиск через Find My",
+    "category": "Аксессуары",
+    "price": 12990,
+    "sku": "PEN-IPAD"
+  },
+  {
+    "id": "a294fdb9-87a1-5c5d-b823-add0a33f756f",
+    "name": "Anker PowerCore 20000",
+    "description": "Внешний аккумулятор 20000 mAh, USB-C PD 30W, зарядка ноутбука и телефона",
+    "category": "Powerbank",
+    "price": 4990,
+    "sku": "CH-ANERGIA"
+  },
+  {
+    "id": "b6700acd-0785-5e91-8b42-05e1ff462857",
+    "name": "LG UltraGear 27GP850",
+    "description": "Игровой монитор 27\" QHD 165 Гц, Nano IPS, 1 мс, G-Sync Compatible",
+    "category": "Мониторы",
+    "price": 34990,
+    "sku": "MON-LG-27"
+  },
+  {
+    "id": "f5b19e7a-fe2c-5b6e-84dd-1d7fa7ea8a93",
+    "name": "Keychron K2 V2",
+    "description": "Механическая Bluetooth клавиатура 75%, hot-swap, Mac/Windows",
+    "category": "Клавиатуры",
+    "price": 8990,
+    "sku": "KEY-KEYCHRON"
+  },
+  {
+    "id": "ad7741f9-8dc4-53c0-80e8-4a5cd1b6af00",
+    "name": "Samsung 990 Pro 2TB",
+    "description": "NVMe SSD M.2 PCIe 4.0, до 7450 МБ/с чтение, для игр и монтажа",
+    "category": "Накопители",
+    "price": 14990,
+    "sku": "SSD-SAMSUNG"
+  }
+]
