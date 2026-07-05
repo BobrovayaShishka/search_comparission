@@ -4,10 +4,22 @@ import time
 from typing import Any
 
 import redis.asyncio as aioredis
+from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log
 
 from app.config import Settings
 
 logger = logging.getLogger(__name__)
+
+# Ретраим подключение к Redis с backoff ПЕРЕД тем, как упасть в in-memory
+# fallback — иначе на старте контейнера (Redis ещё не готов в docker-compose)
+# сервис сразу и навсегда переходит на память, даже если Redis появится
+# через секунду.
+_connect_retry = retry(
+    stop=stop_after_attempt(4),
+    wait=wait_exponential(multiplier=0.3, max=5),
+    before_sleep=before_sleep_log(logger, logging.WARNING),
+    reraise=True,
+)
 
 
 class SearchCache:
@@ -18,20 +30,27 @@ class SearchCache:
         self._redis: aioredis.Redis | None = None
         self._local: dict[str, tuple[float, Any]] = {}
 
+    @_connect_retry
+    async def _connect_redis(self) -> aioredis.Redis:
+        client = aioredis.from_url(
+            self._settings.redis_url,
+            decode_responses=True,
+            socket_connect_timeout=self._settings.network_timeout_seconds,
+        )
+        await client.ping()
+        return client
+
     async def connect(self) -> None:
         if not self._settings.cache_enabled:
             logger.info("Search cache disabled")
             return
         try:
-            self._redis = aioredis.from_url(
-                self._settings.redis_url,
-                decode_responses=True,
-                socket_connect_timeout=self._settings.network_timeout_seconds,
-            )
-            await self._redis.ping()
+            self._redis = await self._connect_redis()
             logger.info("Redis cache connected")
         except Exception:
-            logger.warning("Redis unavailable, using in-memory cache fallback", exc_info=True)
+            logger.warning(
+                "Redis unavailable after retries, using in-memory cache fallback", exc_info=True
+            )
             self._redis = None
 
     async def close(self) -> None:

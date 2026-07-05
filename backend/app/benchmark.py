@@ -143,13 +143,13 @@ async def _ground_truth(
     """Exact (brute-force) поиск для расчёта recall."""
     out = []
     for q in queries:
-        res = await client.search(
+        res = await client.query_points(
             collection_name=name,
-            query_vector=q.tolist(),
+            query=q.tolist(),
             limit=k,
             search_params=models.SearchParams(exact=True),
         )
-        out.append([str(p.id) for p in res])
+        out.append([str(p.id) for p in res.points])
     return out
 
 
@@ -169,14 +169,14 @@ async def _timed_search(
     )
     for q in queries:
         t0 = time.perf_counter()
-        res = await client.search(
+        res = await client.query_points(
             collection_name=name,
-            query_vector=q.tolist(),
+            query=q.tolist(),
             limit=k,
             search_params=search_params,
         )
         latencies.append((time.perf_counter() - t0) * 1000)
-        ids.append([str(p.id) for p in res])
+        ids.append([str(p.id) for p in res.points])
     return ids, latencies
 
 

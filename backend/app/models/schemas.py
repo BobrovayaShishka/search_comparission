@@ -31,6 +31,16 @@ class ProductCreate(BaseModel):
     sku: str | None = Field(default=None, max_length=128)
     metadata: dict[str, Any] = Field(default_factory=dict)
     tenant_id: str | None = None
+    idempotency_key: str | None = Field(
+        default=None,
+        max_length=128,
+        description=(
+            "Клиентский ключ идемпотентности (например, UUID, сгенерированный один раз "
+            "на попытку создания). Повторный вызов create() с тем же ключом и тем же "
+            "tenant_id — например, из-за retry на таймауте — вернёт тот же продукт, "
+            "а не создаст дубликат."
+        ),
+    )
 
 
 class ProductUpdate(BaseModel):

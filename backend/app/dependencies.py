@@ -8,6 +8,7 @@ from app.services.answer_service import AnswerService
 from app.services.bulk_loader import BulkLoader
 from app.services.collection_service import CollectionService
 from app.services.product_service import ProductService
+from app.services.reconciliation_service import ReconciliationService
 from app.services.search_service import SearchService
 
 settings = get_settings()
@@ -20,6 +21,7 @@ collection_service = CollectionService(qdrant, settings)
 bulk_loader = BulkLoader(qdrant, collection_service, settings)
 search_service = SearchService(qdrant, postgres, cache, settings)
 answer_service = AnswerService(ollama, settings)
+reconciliation_service = ReconciliationService(qdrant, postgres)
 product_service = ProductService(
     qdrant, postgres, embeddings, search_service, bulk_loader, answer_service, settings
 )

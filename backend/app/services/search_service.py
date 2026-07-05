@@ -9,6 +9,7 @@ from app.cache.search_cache import SearchCache
 from app.clients.postgres_client import PostgresManager
 from app.clients.qdrant_client import QdrantManager
 from app.config import Settings
+from app.exceptions import UnindexedFilterFieldError
 from app.models.schemas import (
     ProductPayload,
     SearchFilters,
@@ -39,6 +40,26 @@ class SearchService:
         self._postgres = postgres
         self._cache = cache
         self._settings = settings
+        # Держим ссылки на фоновые таски (fire-and-forget логирование поиска
+        # в Postgres), иначе asyncio может собрать их GC до завершения, а при
+        # graceful shutdown они просто обрываются на середине без следа.
+        self._background_tasks: set[asyncio.Task] = set()
+
+    def _spawn_background(self, coro) -> None:
+        task = asyncio.create_task(coro)
+        self._background_tasks.add(task)
+        task.add_done_callback(self._background_tasks.discard)
+
+    async def drain_background_tasks(self, timeout: float = 5.0) -> None:
+        """Wait for in-flight background tasks (e.g. search logging) to finish before shutdown."""
+        if not self._background_tasks:
+            return
+        pending = list(self._background_tasks)
+        logger.info("Draining %d background task(s) before shutdown", len(pending))
+        done, still_pending = await asyncio.wait(pending, timeout=timeout)
+        for task in still_pending:
+            logger.warning("Background task did not finish before shutdown timeout — cancelling")
+            task.cancel()
 
     def _build_filter(self, filters: SearchFilters) -> models.Filter | None:
         """Build indexed Qdrant filter from search parameters."""
@@ -73,6 +94,11 @@ class SearchService:
                 )
             )
         for key, value in filters.metadata.items():
+            if key not in self._settings.metadata_indexed_fields:
+                # Отказ, а не молчаливый fallback на неиндексированный скан:
+                # неиндексированный payload-фильтр на 10М+ векторов — это
+                # гарантированная деградация latency без предупреждения.
+                raise UnindexedFilterFieldError(key, self._settings.metadata_indexed_fields)
             conditions.append(
                 models.FieldCondition(
                     key=f"metadata.{key}",
@@ -109,9 +135,13 @@ class SearchService:
         query_filter = self._build_filter(request.filters)
 
         try:
-            results = await self._qdrant.client.search(
+            # AsyncQdrantClient.search() устарел в клиентах 1.10+ в пользу
+            # query_points() (унифицированный query-API: search/recommend/
+            # discover через один метод). Возвращает QueryResponse с полем
+            # .points вместо голого списка ScoredPoint.
+            response_qdrant = await self._qdrant.client.query_points(
                 collection_name=self._qdrant.collection,
-                query_vector=request.embedding,
+                query=request.embedding,
                 query_filter=query_filter,
                 limit=limit,
                 offset=request.offset,
@@ -119,6 +149,7 @@ class SearchService:
                 search_params=models.SearchParams(hnsw_ef=hnsw_ef),
                 with_payload=True,
             )
+            results = response_qdrant.points
         except Exception:
             search_metrics.record_error()
             raise
@@ -146,7 +177,7 @@ class SearchService:
         await self._cache.set(cache_key, response.model_dump())
         search_metrics.record_request(latency_ms)
 
-        asyncio.create_task(
+        self._spawn_background(
             self._postgres.log_search(
                 tenant_id=request.filters.tenant_id,
                 query_hash=cache_key[:16],
