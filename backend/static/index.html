@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FTS vs Vector Search</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --fts: #22c55e;
+      --vec: #a855f7;
+      --ask: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    header { margin-bottom: 1.5rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; }
+    .status {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.8rem; padding: 0.25rem 0.6rem;
+      border-radius: 999px; border: 1px solid var(--border);
+      margin-top: 0.5rem;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
+    .dot.ok { background: var(--fts); }
+    .dot.err { background: #ef4444; }
+    .search-box {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+    }
+    input[type="text"] {
+      flex: 1; min-width: 200px;
+      padding: 0.65rem 0.9rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-size: 1rem;
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .modes { display: flex; gap: 0.4rem; flex-wrap: wrap; width: 100%; }
+    button {
+      padding: 0.55rem 1rem; border-radius: 8px; border: none;
+      font-weight: 600; cursor: pointer; font-size: 0.9rem;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-compare { background: var(--accent); color: #fff; }
+    .btn-fts { background: var(--fts); color: #052e16; }
+    .btn-vec { background: var(--vec); color: #fff; }
+    .btn-ask { background: var(--ask); color: #451a03; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .chip {
+      padding: 0.35rem 0.7rem; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 0.8rem; cursor: pointer;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .loader { color: var(--muted); padding: 2rem; text-align: center; display: none; }
+    .loader.show { display: block; }
+    .grid { display: grid; gap: 1rem; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem;
+    }
+    .card h2 {
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      margin: 0 0 0.75rem; color: var(--muted);
+    }
+    .card h2.fts { color: var(--fts); }
+    .card h2.vec { color: var(--vec); }
+    .card h2.ask { color: var(--ask); }
+    .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .meta strong { color: var(--text); }
+    .hit {
+      padding: 0.65rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .hit:last-child { border-bottom: none; }
+    .hit-name { font-weight: 600; }
+    .hit-sub { color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+    .empty { color: var(--muted); font-style: italic; }
+    .answer {
+      background: var(--bg); border-radius: 8px; padding: 0.9rem;
+      border-left: 3px solid var(--ask); margin-bottom: 0.75rem;
+    }
+    .speed-bar {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      padding: 0.75rem; background: var(--bg); border-radius: 8px;
+      font-size: 0.85rem; margin-bottom: 1rem;
+    }
+    .winner { color: var(--fts); font-weight: 700; }
+    .err-box {
+      background: #450a0a; border: 1px solid #991b1b;
+      color: #fecaca; padding: 1rem; border-radius: 8px; display: none;
+    }
+    .err-box.show { display: block; }
+    footer { margin-top: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Сравнение поиска: Postgres FTS vs Qdrant Vector</h1>
+      <p class="sub">bge-m3 + qwen2.5:3b-instruct · ~65 товаров · RAG /ask</p>
+      <div class="status" id="status">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">проверка…</span>
+      </div>
+    </header>
+
+    <div class="search-box">
+      <input type="text" id="query" placeholder="Например: кроссовки для бега" value="кроссовки для бега" />
+      <div class="modes">
+        <button class="btn-compare" id="btnCompare" type="button">Сравнить</button>
+        <button class="btn-fts" id="btnFts" type="button">FTS</button>
+        <button class="btn-vec" id="btnVec" type="button">Vector</button>
+        <button class="btn-ask" id="btnAsk" type="button">RAG /ask</button>
+      </div>
+    </div>
+
+    <div class="chips" id="chips"></div>
+
+    <div class="err-box" id="error"></div>
+    <div class="loader" id="loader">Загрузка… (RAG может занять до минуты)</div>
+    <div id="results"></div>
+
+    <footer>
+      <a href="/docs" target="_blank">Swagger API</a> ·
+      <a href="/health" target="_blank">/health</a>
+    </footer>
+  </div>
+
+  <script>
+    const DEMO = [
+      "что-нибудь для приготовления кофе",
+      "гаджет для уборки квартиры",
+      "кросовки",
+      "Gel-Nimbus",
+      "айфон",
+      "посоветуй недорогие беговые кроссовки",
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const chips = $("chips");
+    DEMO.forEach((q) => {
+      const c = document.createElement("button");
+      c.className = "chip";
+      c.type = "button";
+      c.textContent = q;
+      c.onclick = () => { $("query").value = q; run("compare"); };
+      chips.appendChild(c);
+    });
+
+    function fmtPrice(p) {
+      return p != null ? `${Math.round(p).toLocaleString("ru")} ₽` : "—";
+    }
+
+    function renderHits(hits) {
+      if (!hits?.length) return '<p class="empty">Ничего не найдено</p>';
+      return hits.map((h) => `
+        <div class="hit">
+          <div class="hit-name">${esc(h.name)}</div>
+          <div class="hit-sub">${esc(h.category || "")} · score ${(h.score ?? 0).toFixed(3)} · ${fmtPrice(h.price)}</div>
+        </div>
+      `).join("");
+    }
+
+    function esc(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function fmtTokens(t) {
+      if (!t) return "—";
+      if (t.total_tokens != null) return `embed ${t.embed_tokens || 0} + prompt ${t.prompt_tokens || 0} + out ${t.completion_tokens || 0} = <strong>${t.total_tokens}</strong>`;
+      if (t.embed_tokens != null) return `embed <strong>${t.embed_tokens}</strong>`;
+      return JSON.stringify(t);
+    }
+
+    function setLoading(on) {
+      $("loader").classList.toggle("show", on);
+      ["btnCompare", "btnFts", "btnVec", "btnAsk"].forEach((id) => { $(id).disabled = on; });
+    }
+
+    function showError(msg) {
+      const el = $("error");
+      el.textContent = msg;
+      el.classList.add("show");
+    }
+
+    function clearError() {
+      $("error").classList.remove("show");
+    }
+
+    async function api(path, q) {
+      const url = `${path}?q=${encodeURIComponent(q)}&limit=5`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    }
+
+    function renderCompare(data) {
+      const sp = data.speed || {};
+      const winner = sp.winner === "fulltext" ? "FTS быстрее" : "Vector быстрее";
+      return `
+        <div class="speed-bar">
+          <span class="winner">${winner}</span>
+          <span>FTS: <strong>${sp.fulltext_ms} ms</strong></span>
+          <span>Vector: <strong>${sp.vector_ms} ms</strong> (embed ${sp.vector_embed_ms} + qdrant ${sp.vector_qdrant_ms} ms)</span>
+          <span>Δ ${sp.delta_ms} ms</span>
+          <span>tokens: ${fmtTokens(data.tokens?.vector_embed)}</span>
+        </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <h2 class="fts">Полнотекст (Postgres)</h2>
+            <div class="meta">режим <strong>${data.fulltext?.mode}</strong> · <strong>${data.fulltext?.latency_ms} ms</strong></div>
+            ${renderHits(data.fulltext?.hits)}
+          </div>
+          <div class="card">
+            <h2 class="vec">Векторный (Qdrant)</h2>
+            <div class="meta"><strong>${data.vector?.latency_ms} ms</strong> · embed ${data.vector?.latency_embed_ms} ms</div>
+            ${renderHits(data.vector?.hits)}
+          </div>
+        </div>`;
+    }
+
+    function renderAsk(data) {
+      return `
+        <div class="card">
+          <h2 class="ask">RAG-ответ</h2>
+          <div class="meta">
+            <strong>${data.latency_ms} ms</strong>
+            (embed ${data.latency_embed_ms} + qdrant ${data.latency_qdrant_ms} + llm ${data.latency_llm_ms} ms)
+            · tokens: ${fmtTokens(data.tokens)}
+          </div>
+          <div class="answer">${esc(data.answer || "")}</div>
+          <h2 style="margin-top:1rem">Источники</h2>
+          ${renderHits(data.sources)}
+        </div>`;
+    }
+
+    async function run(mode) {
+      const q = $("query").value.trim();
+      if (!q) return;
+      clearError();
+      setLoading(true);
+      $("results").innerHTML = "";
+      try {
+        let html = "";
+        if (mode === "compare") {
+          html = renderCompare(await api("/compare", q));
+        } else if (mode === "fts") {
+          const d = await api("/search/fulltext", q);
+          html = `<div class="card"><h2 class="fts">FTS</h2><div class="meta"><strong>${d.latency_ms} ms</strong> · ${d.mode}</div>${renderHits(d.hits)}</div>`;
+        } else if (mode === "vec") {
+          const d = await api("/search/vector", q);
+          html = `<div class="card"><h2 class="vec">Vector</h2><div class="meta"><strong>${d.latency_ms} ms</strong> · tokens ${fmtTokens(d.tokens)}</div>${renderHits(d.hits)}</div>`;
+        } else if (mode === "ask") {
+          html = renderAsk(await api("/ask", q));
+        }
+        $("results").innerHTML = html;
+      } catch (e) {
+        showError(e.message || String(e));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    $("btnCompare").onclick = () => run("compare");
+    $("btnFts").onclick = () => run("fts");
+    $("btnVec").onclick = () => run("vec");
+    $("btnAsk").onclick = () => run("ask");
+    $("query").addEventListener("keydown", (e) => { if (e.key === "Enter") run("compare"); });
+
+    async function checkHealth() {
+      try {
+        const h = await fetch("/health").then((r) => r.json());
+        const ok = h.status === "ok" && h.ollama?.embed_available && h.ollama?.llm_available;
+        $("statusDot").className = "dot " + (ok ? "ok" : "err");
+        $("statusText").textContent = ok
+          ? `OK · ${h.postgres?.catalog_count} товаров · ${h.embed_model} + ${h.llm_model}`
+          : `degraded · ${h.ollama?.status || "?"}`;
+      } catch {
+        $("statusDot").className = "dot err";
+        $("statusText").textContent = "backend недоступен";
+      }
+    }
+    checkHealth();
+  </script>
+</body>
+</html>

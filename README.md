@@ -71,18 +71,20 @@ praktikum/
     ├── Dockerfile
     ├── requirements.txt
     ├── data/
-    │   ├── products.json       # синтетический каталог (уже сгенерирован)
-    │   ├── comparison.md       # создаётся compare_report
-    │   └── benchmark_fts_vs_vector.md  # создаётся benchmark
+    │   ├── products.json
+    │   ├── comparison.md
+    │   └── benchmark_fts_vs_vector.md
+    ├── static/
+    │   └── index.html          # веб-UI на /
     └── app/
-        ├── main.py             # FastAPI: /search/fulltext, /vector, /compare, /ask
-        ├── llm.py              # Ollama embed + chat, токены, MOCK_MODE
-        ├── db.py               # Postgres FTS
-        ├── vector_store.py     # Qdrant + seed
-        ├── config.py           # настройки из .env
-        ├── gen_products.py     # генератор каталога
-        ├── compare_report.py   # отчёт: релевантность + скорость + токены
-        └── benchmark_fts_vs_vector.py  # бенчмарк p50/p95 FTS vs vector
+        ├── main.py
+        ├── llm.py
+        ├── db.py
+        ├── vector_store.py
+        ├── config.py
+        ├── gen_products.py
+        ├── compare_report.py
+        └── benchmark_fts_vs_vector.py
 ```
 
 ---
@@ -176,6 +178,10 @@ API работает, но эмбеддинги — детерминирован
 ---
 
 ## Проверка работоспособности
+
+**Веб-UI (главное для демо):** http://localhost:8000/
+
+Кнопки: Сравнить · FTS · Vector · RAG /ask — плюс готовые примеры запросов, latency и токены.
 
 **Swagger UI:** http://localhost:8000/docs
 
@@ -377,6 +383,41 @@ docker compose up --build -d
 | Пустой vector-поиск после смены модели | `docker compose down -v` — старые векторы несовместимы с новой размерностью |
 | `catalog_count: 0` | Проверьте наличие `backend/data/products.json`; смотрите логи `docker compose logs backend` |
 | Порт 8000 занят | В `.env`: `BACKEND_PORT=8001` |
+
+---
+
+## Хостинг (нужен ли один контейнер?)
+
+**Нет — один «супер-контейнер» не нужен и не рекомендуется.** Postgres, Qdrant и Ollama — разные процессы; упаковка в один образ усложнит деплой и отладку.
+
+Для хостинга достаточно **одной команды на сервере**:
+
+```bash
+docker compose up --build -d
+```
+
+Снаружи открыт только **порт 8000** (UI + API). Остальные сервисы общаются внутри docker-сети.
+
+### Минимальный VPS (рекомендуется)
+
+1. Арендовать VPS (4+ GB RAM, лучше 8 GB — Ollama + модели).
+2. Установить Docker + Docker Compose.
+3. Склонировать репозиторий, создать `.env`.
+4. Скачать модели в Ollama (см. «Запуск»).
+5. `docker compose up --build -d`
+6. Открыть в firewall **только 8000** (или повесить nginx с HTTPS на 443).
+
+Пользователи заходят на `http://ВАШ_IP:8000/` — веб-UI уже внутри backend.
+
+### Что не выставлять наружу
+
+| Порт | Сервис | Почему |
+|------|--------|--------|
+| 5432 | Postgres | БД не для публичного доступа |
+| 6333 | Qdrant | Внутренний сервис |
+| 11434 | Ollama | Тяжёлый, без авторизации |
+
+В `docker-compose.yml` для продакшена можно убрать `ports` у postgres/qdrant/ollama — backend достучится по имени сервиса.
 
 ---
 

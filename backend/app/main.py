@@ -1,7 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Query
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings, setup_logging
 from app.db import Database
@@ -46,6 +49,22 @@ app = FastAPI(
     description="Postgres FTS vs Qdrant vector + RAG. Модели: bge-m3 + qwen2.5:3b-instruct",
     lifespan=lifespan,
 )
+
+_static = Path(__file__).resolve().parent.parent / "static"
+_index = _static / "index.html"
+if _static.is_dir():
+    app.mount("/static", StaticFiles(directory=_static), name="static")
+    logger.info("UI static dir: %s", _static)
+else:
+    logger.warning("UI static dir missing: %s", _static)
+
+
+@app.get("/", include_in_schema=False)
+async def ui() -> FileResponse:
+    if not _index.is_file():
+        from fastapi import HTTPException
+        raise HTTPException(503, "UI not found — rebuild backend: docker compose up --build -d backend")
+    return FileResponse(_index)
 
 
 @app.get("/health")
