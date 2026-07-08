@@ -386,38 +386,65 @@ docker compose up --build -d
 
 ---
 
-## Хостинг (нужен ли один контейнер?)
+## Хостинг
 
-**Нет — один «супер-контейнер» не нужен и не рекомендуется.** Postgres, Qdrant и Ollama — разные процессы; упаковка в один образ усложнит деплой и отладку.
+### Раздел «Приложения» на хостинге (сборка из Git)
 
-Для хостинга достаточно **одной команды на сервере**:
+В корне репозитория есть **`Dockerfile`** — хостинг собирает **только backend** (FastAPI + UI).
+
+**Настройки сборки в панели:**
+
+| Параметр | Значение |
+|----------|----------|
+| Dockerfile | `Dockerfile` (корень репо) |
+| Контекст сборки | `.` (корень репо) |
+| Порт приложения | `8000` |
+
+Отдельно в разделе «Приложения» подними **3 сервиса** (или managed):
+
+| Сервис | Версия | Переменная для backend |
+|--------|--------|------------------------|
+| PostgreSQL | **16** | `DATABASE_URL=postgresql://user:pass@host:5432/db` |
+| Qdrant | **1.12.x** | `QDRANT_URL=http://host:6333` |
+| Ollama | **0.3.x** | `OLLAMA_URL=http://host:11434` |
+
+**Переменные окружения backend** (обязательные):
+
+```env
+DATABASE_URL=postgresql://...
+QDRANT_URL=http://...
+OLLAMA_URL=http://...
+EMBED_MODEL=bge-m3
+EMBEDDING_DIMENSION=1024
+OLLAMA_MODEL=qwen2.5:3b-instruct
+MOCK_MODE=false
+```
+
+После деплоя Postgres выполни SQL из `db/init/01_schema.sql` (таблица `catalog_products`). Backend при старте сам зальёт товары в Postgres и Qdrant.
+
+В Ollama на хосте: `ollama pull bge-m3` и `ollama pull qwen2.5:3b-instruct`.
+
+> **Ошибка «Dockerfile not found»** — хостинг ищет файл в **корне** репозитория, не в `backend/`. Используй корневой `Dockerfile` из репо (не `backend/Dockerfile` в настройках, если контекст — корень).
+
+### VPS с Docker Compose (рекомендуется для всего стека)
 
 ```bash
 docker compose up --build -d
 ```
 
-Снаружи открыт только **порт 8000** (UI + API). Остальные сервисы общаются внутри docker-сети.
+Снаружи открыт только **порт 8000** (UI + API).
 
-### Минимальный VPS (рекомендуется)
-
-1. Арендовать VPS (4+ GB RAM, лучше 8 GB — Ollama + модели).
-2. Установить Docker + Docker Compose.
-3. Склонировать репозиторий, создать `.env`.
-4. Скачать модели в Ollama (см. «Запуск»).
-5. `docker compose up --build -d`
-6. Открыть в firewall **только 8000** (или повесить nginx с HTTPS на 443).
-
-Пользователи заходят на `http://ВАШ_IP:8000/` — веб-UI уже внутри backend.
+1. VPS **8 GB RAM** / 4 vCPU
+2. `git clone`, `.env`, `ollama pull` для моделей
+3. `docker compose up --build -d`
 
 ### Что не выставлять наружу
 
-| Порт | Сервис | Почему |
-|------|--------|--------|
-| 5432 | Postgres | БД не для публичного доступа |
-| 6333 | Qdrant | Внутренний сервис |
-| 11434 | Ollama | Тяжёлый, без авторизации |
-
-В `docker-compose.yml` для продакшена можно убрать `ports` у postgres/qdrant/ollama — backend достучится по имени сервиса.
+| Порт | Сервис |
+|------|--------|
+| 5432 | Postgres |
+| 6333 | Qdrant |
+| 11434 | Ollama |
 
 ---
 
