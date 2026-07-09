@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     ollama_max_tokens: int = 300
     mock_mode: bool = False
 
+    # Dockhost LLM Inference (OpenAI-совместимый API) — альтернатива Ollama
+    inference_api_key: str = ""
+    inference_base_url: str = "https://inference.dockhost.io/v1"
+    inference_chat_model: str = "qwen/qwen3.5-9b"
+    inference_timeout_seconds: float = 120.0
+
     products_json_path: str = "data/products.json"
     search_default_limit: int = 10
     search_max_limit: int = 20

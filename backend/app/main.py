@@ -46,7 +46,7 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title="Search Comparison API",
     version="4.0.0",
-    description="Postgres FTS vs Qdrant vector + RAG. Модели: bge-m3 + qwen2.5:3b-instruct",
+    description="Postgres FTS vs Qdrant vector + RAG. Ollama или Dockhost LLM Inference",
     lifespan=lifespan,
 )
 
@@ -76,7 +76,8 @@ async def health() -> dict:
         "ollama": await llm.health_check(),
         "mock_mode": settings.mock_mode,
         "embed_model": settings.embed_model,
-        "llm_model": settings.ollama_model,
+        "llm_model": llm.chat_model,
+        "llm_provider": "inference" if llm.uses_inference else ("mock" if settings.mock_mode else "ollama"),
     }
 
 
