@@ -70,11 +70,20 @@ class VectorStore:
     async def seed_if_empty(self) -> dict:
         pg_count = await self._db.count_products()
         products = self._load_products()
-        if pg_count >= len(products) and pg_count > 0:
-            return {"status": "skipped", "count": pg_count}
+        expected = len(products)
 
         if not products:
             return {"status": "empty", "count": 0}
+
+        # Перезаливка при расширении каталога (65 → 250 и т.д.)
+        if pg_count >= expected and pg_count > 0:
+            return {"status": "skipped", "count": pg_count, "expected": expected}
+
+        if pg_count > 0 and pg_count < expected:
+            logger.info("Catalog upgrade: %d → %d products, re-seeding", pg_count, expected)
+            await self._db.truncate_products()
+            await self.client.delete_collection(self._settings.qdrant_collection)
+            await self._ensure_collection()
 
         texts = [
             build_product_text(p["name"], p.get("description", ""), p.get("category", ""))
@@ -82,6 +91,8 @@ class VectorStore:
         ]
         embed_result = await self._llm.embed(texts)
         points: list[models.PointStruct] = []
+
+        logger.info("Embedding %d products for seed...", len(products))
 
         for product, vector in zip(products, embed_result.vectors):
             await self._db.upsert_product(
@@ -136,8 +147,11 @@ class VectorStore:
         qdrant_ms = round((time.perf_counter() - qdrant_start) * 1000, 2)
         total_ms = round((time.perf_counter() - start) * 1000, 2)
 
+        min_score = 0.0 if self._settings.mock_mode else self._settings.vector_min_score
         hits = []
         for point in response.points:
+            if point.score is not None and point.score < min_score:
+                continue
             payload = point.payload or {}
             hits.append({
                 "id": str(point.id),
@@ -153,6 +167,7 @@ class VectorStore:
             "query": query,
             "hits": hits,
             "total": len(hits),
+            "min_score": min_score if min_score > 0 else None,
             "limit": limit,
             "latency_ms": total_ms,
             "latency_embed_ms": embed_result.latency_ms,

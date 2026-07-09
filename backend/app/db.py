@@ -41,6 +41,10 @@ class Database:
         async with self.pool.acquire() as conn:
             return await conn.fetchval("SELECT COUNT(*) FROM catalog_products")
 
+    async def truncate_products(self) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute("TRUNCATE catalog_products")
+
     async def upsert_product(
         self,
         product_id: str,

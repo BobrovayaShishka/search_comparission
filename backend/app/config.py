@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     products_json_path: str = "data/products.json"
     search_default_limit: int = 10
     search_max_limit: int = 20
+    vector_min_score: float = 0.42
 
 
 @lru_cache
