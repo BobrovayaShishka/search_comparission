@@ -40,25 +40,56 @@ class VectorStore:
             await self._client.close()
             self._client = None
 
-    async def _ensure_collection(self) -> None:
+    async def _get_collection_dim(self) -> int | None:
+        name = self._settings.qdrant_collection
+        collections = await self.client.get_collections()
+        if name not in [c.name for c in collections.collections]:
+            return None
+        info = await self.client.get_collection(name)
+        vectors = info.config.params.vectors
+        if isinstance(vectors, models.VectorParams):
+            return vectors.size
+        if isinstance(vectors, dict) and vectors:
+            first = next(iter(vectors.values()))
+            if isinstance(first, models.VectorParams):
+                return first.size
+        return None
+
+    async def _recreate_collection(self) -> None:
         name = self._settings.qdrant_collection
         dim = self._settings.embedding_dimension
         collections = await self.client.get_collections()
-        exists = name in [c.name for c in collections.collections]
-        if exists:
-            return
+        if name in [c.name for c in collections.collections]:
+            await self.client.delete_collection(name)
         await self.client.create_collection(
             collection_name=name,
             vectors_config=models.VectorParams(size=dim, distance=models.Distance.COSINE),
         )
         logger.info("Created Qdrant collection %s (dim=%d)", name, dim)
 
+    async def _ensure_collection(self) -> None:
+        expected_dim = self._settings.embedding_dimension
+        current_dim = await self._get_collection_dim()
+        if current_dim is None:
+            await self._recreate_collection()
+            return
+        if current_dim != expected_dim:
+            logger.warning(
+                "Qdrant dim mismatch: collection=%d, env=%d — recreating collection",
+                current_dim,
+                expected_dim,
+            )
+            await self._recreate_collection()
+
     async def health_check(self) -> dict:
         info = await self.client.get_collection(self._settings.qdrant_collection)
+        dim = await self._get_collection_dim()
         return {
             "status": "ok",
             "points_count": info.points_count,
             "collection": self._settings.qdrant_collection,
+            "vector_dim": dim,
+            "expected_dim": self._settings.embedding_dimension,
         }
 
     def _load_products(self) -> list[dict]:
@@ -75,15 +106,35 @@ class VectorStore:
         if not products:
             return {"status": "empty", "count": 0}
 
-        # Перезаливка при расширении каталога (65 → 250 и т.д.)
-        if pg_count >= expected and pg_count > 0:
+        collection_dim = await self._get_collection_dim()
+        expected_dim = self._settings.embedding_dimension
+        dim_mismatch = collection_dim is not None and collection_dim != expected_dim
+
+        qdrant_info = await self.client.get_collection(self._settings.qdrant_collection)
+        points_count = qdrant_info.points_count
+
+        needs_reseed = (
+            dim_mismatch
+            or pg_count < expected
+            or points_count < expected
+        )
+
+        if not needs_reseed and pg_count > 0:
             return {"status": "skipped", "count": pg_count, "expected": expected}
 
-        if pg_count > 0 and pg_count < expected:
+        if dim_mismatch:
+            logger.info(
+                "Embedding dim change: %s → %d, re-seeding catalog",
+                collection_dim,
+                expected_dim,
+            )
+        elif pg_count > 0 and pg_count < expected:
             logger.info("Catalog upgrade: %d → %d products, re-seeding", pg_count, expected)
-            await self._db.truncate_products()
-            await self.client.delete_collection(self._settings.qdrant_collection)
-            await self._ensure_collection()
+        elif points_count < expected:
+            logger.info("Qdrant incomplete: %d → %d points, re-seeding", points_count, expected)
+
+        await self._db.truncate_products()
+        await self._recreate_collection()
 
         texts = [
             build_product_text(p["name"], p.get("description", ""), p.get("category", ""))
