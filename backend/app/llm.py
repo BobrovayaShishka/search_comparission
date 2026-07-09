@@ -82,6 +82,45 @@ def build_product_text(name: str, description: str, category: str) -> str:
     return ". ".join(parts)
 
 
+def _extract_assistant_text(message: dict | None, choice: dict | None = None) -> str:
+    """OpenAI / Dockhost / Qwen: content может быть пустым, текст — в reasoning."""
+    if message:
+        content = message.get("content")
+        if isinstance(content, str) and content.strip():
+            return content.strip()
+        if isinstance(content, list):
+            chunks: list[str] = []
+            for part in content:
+                if isinstance(part, str) and part.strip():
+                    chunks.append(part.strip())
+                elif isinstance(part, dict):
+                    text = part.get("text") or part.get("content")
+                    if isinstance(text, str) and text.strip():
+                        chunks.append(text.strip())
+            if chunks:
+                return "\n".join(chunks).strip()
+
+        for key in ("reasoning", "reasoning_content"):
+            val = message.get(key)
+            if isinstance(val, str) and val.strip():
+                return val.strip()
+
+        for item in message.get("reasoning_details") or []:
+            if not isinstance(item, dict):
+                continue
+            if item.get("type") in {"reasoning.text", "text", "summary_text"}:
+                text = item.get("text") or item.get("summary")
+                if isinstance(text, str) and text.strip():
+                    return text.strip()
+
+    if choice:
+        legacy = choice.get("text")
+        if isinstance(legacy, str) and legacy.strip():
+            return legacy.strip()
+
+    return ""
+
+
 class LLMClient:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -245,22 +284,57 @@ class LLMClient:
         )
 
     async def _generate_inference(self, prompt: str, start: float) -> GenerateResult:
-        response = await self._client.post(
-            "/chat/completions",
-            json={
-                "model": self.chat_model,
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": self._settings.ollama_max_tokens,
-                "temperature": 0.2,
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "Ты консультант магазина. Отвечай кратко на русском, "
+                    "2–4 предложения. Без markdown и без блока рассуждений."
+                ),
             },
-        )
-        response.raise_for_status()
-        data = response.json()
+            {"role": "user", "content": prompt},
+        ]
+        base_payload: dict = {
+            "model": self.chat_model,
+            "messages": messages,
+            "max_tokens": self._settings.inference_max_tokens,
+            "temperature": 0.2,
+        }
+
+        payloads = [base_payload]
+        if self.chat_model.startswith("qwen/"):
+            with_reasoning = {**base_payload, "reasoning": {"exclude": True}}
+            payloads = [with_reasoning, base_payload]
+
+        data: dict | None = None
+        last_exc: Exception | None = None
+        for body in payloads:
+            try:
+                response = await self._client.post("/chat/completions", json=body)
+                response.raise_for_status()
+                data = response.json()
+                break
+            except httpx.HTTPStatusError as exc:
+                last_exc = exc
+                if exc.response.status_code in {400, 422} and body is not base_payload:
+                    continue
+                raise
+
+        if data is None:
+            raise last_exc or RuntimeError("Inference chat failed")
+
         choices = data.get("choices") or []
         text = ""
         if choices:
-            text = (choices[0].get("message") or {}).get("content") or ""
-        text = text.strip()
+            text = _extract_assistant_text(choices[0].get("message"), choices[0])
+
+        if not text:
+            logger.warning(
+                "Inference chat returned empty text (model=%s, finish=%s)",
+                self.chat_model,
+                choices[0].get("finish_reason") if choices else None,
+            )
+
         usage = data.get("usage") or {}
         tokens = TokenUsage(
             prompt_tokens=int(usage.get("prompt_tokens") or _estimate_tokens(prompt)),

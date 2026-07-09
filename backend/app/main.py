@@ -156,6 +156,14 @@ async def ask(
     prompt = _ASK_PROMPT.format(query=q, items="\n".join(items))
     gen = await llm.generate(prompt)
 
+    answer = gen.text.strip()
+    if not answer:
+        answer = (
+            "Модель не вернула текст ответа. "
+            "Проверьте INFERENCE_CHAT_MODEL (например qwen/qwen3.6-flash или google/gemini-2.5-flash-lite) "
+            "и INFERENCE_MAX_TOKENS (рекомендуется 1024)."
+        )
+
     total_tokens = TokenUsage(
         embed_tokens=vec.get("tokens", {}).get("embed_tokens", 0),
         prompt_tokens=gen.tokens.prompt_tokens,
@@ -164,7 +172,7 @@ async def ask(
 
     return {
         "query": q,
-        "answer": gen.text,
+        "answer": answer,
         "sources": hits,
         "latency_ms": round(vec["latency_ms"] + gen.latency_ms, 2),
         "latency_embed_ms": vec.get("latency_embed_ms"),

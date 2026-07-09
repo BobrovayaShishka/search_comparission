@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     ollama_model: str = "qwen2.5:3b-instruct"
     ollama_timeout_seconds: float = 600.0
     ollama_max_tokens: int = 300
+    inference_max_tokens: int = 1024
     mock_mode: bool = False
 
     # Dockhost LLM Inference (OpenAI-совместимый API) — альтернатива Ollama

@@ -249,7 +249,7 @@
             (embed ${data.latency_embed_ms} + qdrant ${data.latency_qdrant_ms} + llm ${data.latency_llm_ms} ms)
             · tokens: ${fmtTokens(data.tokens)}
           </div>
-          <div class="answer">${esc(data.answer || "")}</div>
+          <div class="answer">${data.answer ? esc(data.answer) : '<span class="empty">Ответ пустой — проверьте INFERENCE_CHAT_MODEL и логи backend</span>'}</div>
           <h2 style="margin-top:1rem">Источники</h2>
           ${renderHits(data.sources)}
         </div>`;
@@ -291,7 +291,7 @@
     async function checkHealth() {
       try {
         const h = await fetch("/health").then((r) => r.json());
-        const ok = h.status === "ok" && h.ollama?.embed_available && h.ollama?.llm_available;
+        const ok = h.status === "ok" && h.ollama?.embed_available !== false;
         $("statusDot").className = "dot " + (ok ? "ok" : "err");
         $("statusText").textContent = ok
           ? `OK · ${h.postgres?.catalog_count} товаров · ${h.embed_model} + ${h.llm_model}`
